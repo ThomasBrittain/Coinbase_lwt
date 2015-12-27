@@ -1,0 +1,29 @@
+Coinbase_lwt is a module of lwt friendly binding to the Coinbase REST API.
+Is is setup as a functor that will take a module of Coinbase user account information.
+
+It has the following dependencies:
+Lwt
+Lwt.syntax
+Yojson
+Base64
+Uri
+Cryptokit
+Cohttp
+Core
+
+Generate all of the Coinbase API bindings for from user account information as follows:
+
+module MyAccountInfo : AccountInfo =
+  struct
+	  let username = "username_goes_here"
+    let passphrase = "passphrase_goes_here"
+    let api_key = "api_key_goes_here"
+    let secret_key = "secret_key_goes_here"
+  end
+
+module CoinbaseAPI = Make (MyAccountInfo)
+
+Then all of the Coinbase API functions can be called from the CoinbaseAPI module.
+
+PLEASE NOTE: The Coinbase API is rapidly changing, you may likely run into errors.
+Please report all bugs to https://github.com/tbads/Coinbase_lwt.
