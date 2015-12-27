@@ -15,7 +15,7 @@ Generate all of the Coinbase API bindings for from user account information as f
 
 module MyAccountInfo : AccountInfo =
   struct
-	  let username = "username_goes_here"
+    let username = "username_goes_here"
     let passphrase = "passphrase_goes_here"
     let api_key = "api_key_goes_here"
     let secret_key = "secret_key_goes_here"
