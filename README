@@ -1,5 +1,5 @@
-Coinbase_lwt is a module of lwt friendly binding to the Coinbase REST API.
-Is is setup as a functor that will take a module of Coinbase user account information.
+Coinbase_lwt is a module of lwt friendly bindings to the Coinbase REST API.
+It is setup as a functor that will take a module of Coinbase user account information.
 
 It has the following dependencies:
 Lwt
