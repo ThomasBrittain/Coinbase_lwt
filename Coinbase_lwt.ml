@@ -14,7 +14,7 @@ module Make (U : AccountInfo) = struct
 
   let (>>=) = Lwt.bind
 
-  let coinbase_api = "https://api.exchange.coinbase.com/"
+  let coinbase_api = "https://api.gdax.com/"
   let quote_increment = 0.01
   let hmac_key = B64.decode U.secret_key
 
