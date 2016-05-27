@@ -1,10 +1,4 @@
-(* Coinbase Exchange REST API interface -- Lwt friendly *)
-
-(* To Compile Manually: *)
-(* ocamlfind ocamlc -c -o Coinbase_lwt *)
-(* -thread -syntax camlp4o *)
-(* -package base64,cryptokit,cohttp.lwt,uri,yojson,lwt,lwt.syntax,core *)
-(* -linkpkg Coinbase_lwt.ml *)
+(* A Coinbase Exchange REST API interface - Lwt friendly *)
 
 open Yojson.Basic.Util
 
@@ -200,29 +194,27 @@ module Make (U : AccountInfo) = struct
   (* Last Trade type *)
   type last_trade = {trade_id : int; price : float; size : float; time : Unix.tm}
 
-  (* Websocket Feed Types - done, open  & received *)
+  (* Websocket Feed Types *)
   type ws_data = Done | Open | Received | Match | Change | WsDataError
 
-  type ws_feed = {entry_type : ws_data;
-                  price : float;
-                  side : order_kind;
-                  remaining_size :float;
-                  sequence : int;
-                  order_id : string;
-                  reason : string;
-                  product_id : symbol;
-                  size : float;
-                  client_oid : string;
-                  trade_id : int;
-                  maker_order_id : string;
-                  taker_order_id : string;
-                  new_size : float;
-                  old_size : float;
-                  time : string}
-
-  (* TODO: Change Failure to Failure of string so that messages can be printed with a Failure *)
-  (* Order Result type *)
-  (*type order_result = Success | Failure*)
+  type ws_feed = {
+    entry_type : ws_data;
+    price : float;
+    side : order_kind;
+    remaining_size :float;
+    sequence : int;
+    order_id : string;
+    reason : string;
+    product_id : symbol;
+    size : float;
+    client_oid : string;
+    trade_id : int;
+    maker_order_id : string;
+    taker_order_id : string;
+    new_size : float;
+    old_size : float;
+    time : string
+  }
 
   let currency_of_string s =
     match s with
@@ -270,7 +262,6 @@ module Make (U : AccountInfo) = struct
     | "cb" -> CB
     | _ -> StpTypeError
 
-  (* TODO: Test this function more thoroughly *)
   let ws_type_of_string json_string =
     let open Yojson.Basic.Util in
     let ws_json = Yojson.Basic.from_string json_string in
@@ -338,7 +329,7 @@ module Make (U : AccountInfo) = struct
                 unsorted_asks
     in
     match feed.entry_type with
-    | Done -> 
+    | Done ->
         (
           match feed.side with
           | Buy ->
@@ -407,7 +398,7 @@ module Make (U : AccountInfo) = struct
                 [{price = hd.price; size = hd.size -. feed.size;
                   order_id = hd.order_id; sequence = hd.sequence}]
         in
-        let new_tkr_order = 
+        let new_tkr_order =
           match tkr_odr with
           | [] -> []
           | hd :: tl ->
@@ -426,8 +417,12 @@ module Make (U : AccountInfo) = struct
         in
         new_book
     | Change ->
-        let new_entry =
-          {price = feed.price; size = feed.size; order_id = feed.order_id; sequence = feed.sequence}
+        let new_entry = {
+          price = feed.price;
+          size = feed.new_size;
+          order_id = feed.order_id;
+          sequence = feed.sequence
+        }
         in
         (
           match feed.side with
@@ -448,7 +443,7 @@ module Make (U : AccountInfo) = struct
   (***** PUBLIC FUNCTIONS *****)
 
   (* Get ticker for BtcUsd*)
-  let get_last_trade () = 
+  let get_last_trade () =
     lwt json_response = get_it "products/BTC-USD/ticker" in
     let i x = member x json_response |> to_int in
     let f x = member x json_response |> to_string |> float_of_string in
@@ -629,7 +624,7 @@ module Make (U : AccountInfo) = struct
     let f x json = member x json |> to_string |> float_of_string in
     let ok x json = member x json |> to_string |> order_kind_of_string in
     let sym x json = member x json |> to_string |> symbol_of_string in
-    let b x json = member x json |> to_bool in 
+    let b x json = member x json |> to_bool in
     Lwt_list.map_s
     (fun j -> Lwt.return
       {id = s "id" j; price = f "price" j; size = f "size" j; product_id = sym "product_id" j;
@@ -649,7 +644,7 @@ module Make (U : AccountInfo) = struct
     lwt account_id =
       get_accounts ()
       >>= fun acct_list -> List.filter (fun (a : account) -> a.currency = ccy) acct_list |> List.hd
-      |> fun (acct : account) -> Lwt.return acct.id 
+      |> fun (acct : account) -> Lwt.return acct.id
     in
     lwt json_response = get_it ~pvt:true ("accounts/" ^ account_id ^ "/ledger") in
     json_response |> to_list |> List.map (member elem) |> List.map to_string |>
