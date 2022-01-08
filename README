@@ -26,4 +26,4 @@ module CoinbaseAPI = Make (MyAccountInfo)
 Then all of the Coinbase API functions can be called from the CoinbaseAPI module.
 
 PLEASE NOTE: The Coinbase API is rapidly changing, you may likely run into errors.
-Please report all bugs to https://github.com/tbads/Coinbase_lwt.
+Please report all bugs to https://github.com/thomasbrittain/Coinbase_lwt.
